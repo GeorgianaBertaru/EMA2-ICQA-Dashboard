@@ -1143,42 +1143,47 @@ function updateHeader() {
 // AUTO-REFRESH (pull from Google Sheets)
 // ═══════════════════════════════════════════════════════════════════
 function autoRefresh() {
-    STORE.pull(function(data) {
-        if (!data) return;
+    var url = CONFIG.apiUrl + '?action=getAll&date=' + getTodayStr();
+    fetch(url)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data) return;
 
-        // Map Google Sheets data back to localStorage
-        if (data.hc && data.hc.length > 0) {
-            var hcObj = {};
-            data.hc.forEach(function(row) {
-                Object.keys(row).forEach(function(k) { hcObj[k] = row[k]; });
-            });
-            localStorage.setItem('ema2_hc_' + getTodayStr(), JSON.stringify(hcObj));
-        }
-        if (data.comms && data.comms.length > 0) {
-            data.comms.forEach(function(row) {
-                if (row.Type) {
-                    localStorage.setItem('ema2_comms_' + getTodayStr() + '_' + row.Type, JSON.stringify(row));
-                }
-            });
-        }
-        if (data.audits && data.audits.length > 0) {
-            localStorage.setItem('ema2_audits_' + getTodayStr(), JSON.stringify({ items: data.audits }));
-        }
-        if (data.backlog && data.backlog.length > 0) {
-            localStorage.setItem('ema2_backlog_' + getTodayStr() + '_' + getCurrentShift(), JSON.stringify({ items: data.backlog }));
-        }
-        if (data.shiftData && data.shiftData.length > 0) {
-            data.shiftData.forEach(function(row) {
-                if (row.Shift) {
-                    localStorage.setItem('ema2_shift_' + getTodayStr() + '_' + row.Shift, JSON.stringify(row));
-                }
-            });
-        }
+            if (data.hc && data.hc.length > 0) {
+                var hcObj = {};
+                data.hc.forEach(function(row) {
+                    Object.keys(row).forEach(function(k) { hcObj[k] = row[k]; });
+                });
+                localStorage.setItem('ema2_hc_' + getTodayStr(), JSON.stringify(hcObj));
+            }
+            if (data.comms && data.comms.length > 0) {
+                data.comms.forEach(function(row) {
+                    if (row.Type) {
+                        localStorage.setItem('ema2_comms_' + getTodayStr() + '_' + row.Type, JSON.stringify(row));
+                    }
+                });
+            }
+            if (data.audits && data.audits.length > 0) {
+                localStorage.setItem('ema2_audits_' + getTodayStr(), JSON.stringify({ items: data.audits }));
+            }
+            if (data.backlog && data.backlog.length > 0) {
+                localStorage.setItem('ema2_backlog_' + getTodayStr() + '_' + getCurrentShift(), JSON.stringify({ items: data.backlog }));
+            }
+            if (data.shiftData && data.shiftData.length > 0) {
+                data.shiftData.forEach(function(row) {
+                    if (row.Shift) {
+                        localStorage.setItem('ema2_shift_' + getTodayStr() + '_' + row.Shift, JSON.stringify(row));
+                    }
+                });
+            }
 
-        // Re-render active tab
-        var activeTab = document.querySelector('.tab.active');
-        if (activeTab) renderTab(activeTab.dataset.tab);
-    });
+            // Re-render active tab
+            var activeTab = document.querySelector('.tab.active');
+            if (activeTab) renderTab(activeTab.dataset.tab);
+
+            console.log('[Refresh] ✅ Data loaded from Google Sheets');
+        })
+        .catch(function(e) { console.log('[Refresh] Offline:', e); });
 }
 
 // ═══════════════════════════════════════════════════════════════════
