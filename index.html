@@ -555,7 +555,8 @@ var STORE = {
     push: function(tab, data) {
     fetch(CONFIG.apiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify({ action: 'upsert', tab: tab, key: { column: 'Shift', value: getCurrentShift() }, data: data })
     }).catch(function(e) { console.log('[API] Offline:', e); });
 },
