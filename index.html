@@ -554,11 +554,10 @@ var STORE = {
         } catch(e) {}
     },
     push: function(tab, data) {
-    fetch(CONFIG.apiUrl, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ action: 'upsert', tab: tab, key: { column: 'Shift', value: getCurrentShift() }, data: data })
+    var payload = JSON.stringify({ tab: tab, key: { column: 'Shift', value: getCurrentShift() }, data: data });
+    var url = CONFIG.apiUrl + '?action=write&payload=' + encodeURIComponent(payload);
+    fetch(url).then(function(r){ return r.json(); }).then(function(d){
+        console.log('[API] ✅ Saved:', d);
     }).catch(function(e) { console.log('[API] Offline:', e); });
 },
     pull: function(callback) {
