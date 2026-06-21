@@ -553,12 +553,12 @@ var STORE = {
         } catch(e) {}
     },
     push: function(tab, data) {
-        fetch(CONFIG.apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'upsert', tab: tab, key: { column: 'Shift', value: getCurrentShift() }, data: data })
-        }).catch(function(e) { console.log('[API] Offline:', e); });
-    },
+    fetch(CONFIG.apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'upsert', tab: tab, key: { column: 'Shift', value: getCurrentShift() }, data: data })
+    }).catch(function(e) { console.log('[API] Offline:', e); });
+},
     pull: function(callback) {
         fetch(CONFIG.apiUrl + '?action=getAll&date=' + getTodayStr())
             .then(function(res) { return res.json(); })
