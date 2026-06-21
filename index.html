@@ -1144,31 +1144,15 @@ function updateHeader() {
 // ═══════════════════════════════════════════════════════════════════
 function autoRefresh() {
     var url = CONFIG.apiUrl + '?action=getAll&date=' + getTodayStr();
-    fetch(url)
-        .then(function(r) { return r.json(); })
+    fetch(url, { redirect: 'follow' })
+        .then(function(r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+        })
         .then(function(data) {
+            console.log('[Refresh] Got data:', data);
             if (!data) return;
 
-            if (data.hc && data.hc.length > 0) {
-                var hcObj = {};
-                data.hc.forEach(function(row) {
-                    Object.keys(row).forEach(function(k) { hcObj[k] = row[k]; });
-                });
-                localStorage.setItem('ema2_hc_' + getTodayStr(), JSON.stringify(hcObj));
-            }
-            if (data.comms && data.comms.length > 0) {
-                data.comms.forEach(function(row) {
-                    if (row.Type) {
-                        localStorage.setItem('ema2_comms_' + getTodayStr() + '_' + row.Type, JSON.stringify(row));
-                    }
-                });
-            }
-            if (data.audits && data.audits.length > 0) {
-                localStorage.setItem('ema2_audits_' + getTodayStr(), JSON.stringify({ items: data.audits }));
-            }
-            if (data.backlog && data.backlog.length > 0) {
-                localStorage.setItem('ema2_backlog_' + getTodayStr() + '_' + getCurrentShift(), JSON.stringify({ items: data.backlog }));
-            }
             if (data.shiftData && data.shiftData.length > 0) {
                 data.shiftData.forEach(function(row) {
                     if (row.Shift) {
@@ -1177,15 +1161,12 @@ function autoRefresh() {
                 });
             }
 
-            // Re-render active tab
             var activeTab = document.querySelector('.tab.active');
             if (activeTab) renderTab(activeTab.dataset.tab);
-
             console.log('[Refresh] ✅ Data loaded from Google Sheets');
         })
-        .catch(function(e) { console.log('[Refresh] Offline:', e); });
+        .catch(function(e) { console.log('[Refresh] ❌ Error:', e); });
 }
-
 // ═══════════════════════════════════════════════════════════════════
 // RECEIVE DATA FROM TAMPERMONKEY (postMessage)
 // ═══════════════════════════════════════════════════════════════════
