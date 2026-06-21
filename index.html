@@ -573,7 +573,20 @@ var STORE = {
 // ═══════════════════════════════════════════════════════════════════
 
 function renderOverview() {
-    var data = STORE.get('shift_' + getTodayStr() + '_' + getCurrentShift()) || {};
+    var raw = STORE.get('shift_' + getTodayStr() + '_' + getCurrentShift()) || {};
+
+    // Map Google Sheets fields to display fields
+    var data = {
+        totalHours: raw.TotalHrs || raw.totalHours || 0,
+        directHrs: raw.DirectHrs || raw.directHrs || 0,
+        indirectHrs: raw.IndirectHrs || raw.indirectHrs || 0,
+        directPct: raw.TotalHrs ? (raw.DirectHrs / raw.TotalHrs * 100) : (raw.directPct || 0),
+        indirectPct: raw.TotalHrs ? (raw.IndirectHrs / raw.TotalHrs * 100) : (raw.indirectPct || 0),
+        sbc: raw.SBC || raw.sbc || 0,
+        cc: raw.CC || raw.cc || 0,
+        src: raw.SRC || raw.src || 0
+    };
+
     var html = '';
     var items = [
         { label: 'Total Hours', value: data.totalHours ? data.totalHours.toFixed(1) : '—', cls: 'blue' },
